@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.26228.9
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Sinks.LogstashHttp", "Serilog.Sinks.LogstashHttp\Serilog.Sinks.LogstashHttp.csproj", "{7AA7B681-2779-4299-8CA0-7C729297ACD9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Serilog.Sinks.LogstashHttp.ExampleApp", "Serilog.Sinks.LogstashHttp.ExampleApp\Serilog.Sinks.LogstashHttp.ExampleApp.csproj", "{635C0603-EFDC-42FF-A39B-E8702BD77774}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{7AA7B681-2779-4299-8CA0-7C729297ACD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7AA7B681-2779-4299-8CA0-7C729297ACD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7AA7B681-2779-4299-8CA0-7C729297ACD9}.Release|Any CPU.Build.0 = Release|Any CPU
+		{635C0603-EFDC-42FF-A39B-E8702BD77774}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{635C0603-EFDC-42FF-A39B-E8702BD77774}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{635C0603-EFDC-42FF-A39B-E8702BD77774}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{635C0603-EFDC-42FF-A39B-E8702BD77774}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
