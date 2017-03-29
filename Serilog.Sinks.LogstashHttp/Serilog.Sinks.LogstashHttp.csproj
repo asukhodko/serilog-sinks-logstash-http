@@ -1,0 +1,24 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>netstandard1.3</TargetFramework>
+    <GeneratePackageOnBuild>True</GeneratePackageOnBuild>
+    <Version>1.1.0</Version>
+    <Authors>Aleksandr Sukhodko</Authors>
+    <Company>Aleksandr Sukhodko</Company>
+    <Description>Logger to ELK through Logstash http plugin (https://www.elastic.co/guide/en/logstash/current/plugins-inputs-http.html)</Description>
+    <Copyright>Copyright 2017</Copyright>
+    <PackageLicenseUrl>http://www.apache.org/licenses/LICENSE-2.0</PackageLicenseUrl>
+    <PackageProjectUrl>https://github.com/asukhodko/serilog-sinks-logstash-http</PackageProjectUrl>
+    <PackageTags>ELK;serilog;logstash</PackageTags>
+    <RootNamespace>Serilog</RootNamespace>
+    <AssemblyVersion>1.1.0.0</AssemblyVersion>
+    <FileVersion>1.1.0.0</FileVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Serilog" Version="2.4.0" />
+    <PackageReference Include="Serilog.Sinks.PeriodicBatching" Version="2.1.0" />
+  </ItemGroup>
+
+</Project>
