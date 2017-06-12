@@ -19,6 +19,8 @@ using System.Linq;
 using System.Net.Http;
 using System.Threading.Tasks;
 
+using Nito.AsyncEx;
+
 using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
 
@@ -29,12 +31,17 @@ namespace Serilog.Sinks.LogstashHttp
     /// </summary>
     public class LogstashHttpSink : PeriodicBatchingSink
     {
+        private static readonly HttpClient HttpClient = new HttpClient();
+        private static readonly AsyncLock Mutex = new AsyncLock();
+
         private readonly LogstashHttpSinkState _state;
 
         /// <summary>
-        ///     Creates a new LogstashHttpSink instance with the provided options
+        /// Initializes a new instance of the <see cref="LogstashHttpSink"/> class with the provided options
         /// </summary>
-        /// <param name="options">Options configuring how the sink behaves, may NOT be null</param>
+        /// <param name="options">
+        /// Options configuring how the sink behaves, may NOT be null
+        /// </param>
         public LogstashHttpSink(LogstashHttpSinkOptions options)
             : base(options.BatchPostingLimit, options.Period)
         {
@@ -42,41 +49,48 @@ namespace Serilog.Sinks.LogstashHttp
         }
 
         /// <summary>
-        ///     Emit a batch of log events, running to completion synchronously.
+        /// Emit a batch of log events, running to completion synchronously.
         /// </summary>
-        /// <param name="events">The events to emit.</param>
+        /// <param name="events">
+        /// The events to emit.
+        /// </param>
         /// <remarks>
-        ///     Override either
-        ///     <see
-        ///         cref="M:Serilog.Sinks.PeriodicBatching.PeriodicBatchingSink.EmitBatch(System.Collections.Generic.IEnumerable{Serilog.Events.LogEvent})" />
+        /// Override either
+        ///     <see cref="M:Serilog.Sinks.PeriodicBatching.PeriodicBatchingSink.EmitBatch(System.Collections.Generic.IEnumerable{Serilog.Events.LogEvent})"/>
         ///     or
-        ///     <see
-        ///         cref="M:Serilog.Sinks.PeriodicBatching.PeriodicBatchingSink.EmitBatchAsync(System.Collections.Generic.IEnumerable{Serilog.Events.LogEvent})" />
+        ///     <see cref="M:Serilog.Sinks.PeriodicBatching.PeriodicBatchingSink.EmitBatchAsync(System.Collections.Generic.IEnumerable{Serilog.Events.LogEvent})"/>
         ///     , not both.
         /// </remarks>
+        /// <returns>
+        /// The <see cref="Task"/>.
+        /// </returns>
         protected override async Task EmitBatchAsync(IEnumerable<LogEvent> events)
         {
             // ReSharper disable PossibleMultipleEnumeration
             if (events == null || !events.Any()) return;
 
-            using (var c = new HttpClient())
+            foreach (var e in events)
             {
-                foreach (var e in events)
-                    try
+                try
+                {
+                    var sw = new StringWriter();
+                    _state.Formatter.Format(e, sw);
+                    var logData = sw.ToString();
+                    var stringContent = new StringContent(logData);
+                    stringContent.Headers.Remove("Content-Type");
+                    stringContent.Headers.Add("Content-Type", "application/json");
+
+                    // Using singleton of HttpClient so we need ensure of thread safety. Just use LockAsync.
+                    using (await Mutex.LockAsync().ConfigureAwait(false))
                     {
-                        var sw = new StringWriter();
-                        _state.Formatter.Format(e, sw);
-                        var logData = sw.ToString();
-                        var stringContent = new StringContent(logData);
-                        stringContent.Headers.Remove("Content-Type");
-                        stringContent.Headers.Add("Content-Type", "application/json");
-                        await c.PostAsync(_state.Options.LogstashUri, stringContent).ConfigureAwait(false);
+                        await HttpClient.PostAsync(_state.Options.LogstashUri, stringContent).ConfigureAwait(false);
                     }
-                    catch (Exception ex)
-                    {
-                        // Debug me
-                        throw ex;
-                    }
+                }
+                catch (Exception ex)
+                {
+                    // Debug me
+                    throw ex;
+                }
             }
         }
     }
