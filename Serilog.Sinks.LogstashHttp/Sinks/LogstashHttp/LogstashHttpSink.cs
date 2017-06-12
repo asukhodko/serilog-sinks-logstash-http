@@ -12,12 +12,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
-using System.Text;
 using System.Threading.Tasks;
+
 using Serilog.Events;
 using Serilog.Sinks.PeriodicBatching;
 
@@ -56,20 +57,26 @@ namespace Serilog.Sinks.LogstashHttp
         protected override async Task EmitBatchAsync(IEnumerable<LogEvent> events)
         {
             // ReSharper disable PossibleMultipleEnumeration
-            if (events == null || !events.Any())
-                return;
+            if (events == null || !events.Any()) return;
 
             using (var c = new HttpClient())
             {
                 foreach (var e in events)
-                {
-                    var sw = new StringWriter();
-                    _state.Formatter.Format(e, sw);
-                    var logData = sw.ToString();
-                    await
-                        c.PostAsync(_state.Options.LogstashUri,
-                            new StringContent(logData, Encoding.UTF8, "application/json"));
-                }
+                    try
+                    {
+                        var sw = new StringWriter();
+                        _state.Formatter.Format(e, sw);
+                        var logData = sw.ToString();
+                        var stringContent = new StringContent(logData);
+                        stringContent.Headers.Remove("Content-Type");
+                        stringContent.Headers.Add("Content-Type", "application/json");
+                        await c.PostAsync(_state.Options.LogstashUri, stringContent).ConfigureAwait(false);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Debug me
+                        throw ex;
+                    }
             }
         }
     }
