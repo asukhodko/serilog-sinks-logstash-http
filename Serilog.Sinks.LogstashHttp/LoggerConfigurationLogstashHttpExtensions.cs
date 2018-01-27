@@ -60,5 +60,31 @@ namespace Serilog
 
             return LogstashHttp(loggerSinkConfiguration, options);
         }
+
+        /// <summary>
+        ///     Overload to allow basic configuration through AppSettings.
+        /// </summary>
+        /// <param name="loggerSinkConfiguration">Options for the sink.</param>
+        /// <param name="logstashUri">URI for Logstash.</param>
+        /// <param name="logstashUser">User for basic authentication</param>
+        /// <param name="logstashPassword">Password for basic authentication</param>
+        /// <returns>LoggerConfiguration object</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="logstashUri" /> is <see langword="null" />.</exception>
+        public static LoggerConfiguration LogstashHttp(
+            this LoggerSinkConfiguration loggerSinkConfiguration,
+            string logstashUri, string logstashUser, string logstashPassword)
+        {
+            if (string.IsNullOrEmpty(logstashUri))
+                throw new ArgumentNullException(nameof(logstashUri), "No Logstash uri specified.");
+
+            var options = new LogstashHttpSinkOptions
+            {
+                LogstashUri = logstashUri,
+                LogstashUser = logstashUser,
+                LogstashPassword = logstashPassword
+            };
+
+            return LogstashHttp(loggerSinkConfiguration, options);
+        }
     }
 }
