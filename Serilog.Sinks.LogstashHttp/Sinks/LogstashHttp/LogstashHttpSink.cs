@@ -17,6 +17,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
+using System.Net.Http.Headers;
+using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 using Nito.AsyncEx;
@@ -46,6 +49,18 @@ namespace Serilog.Sinks.LogstashHttp
             : base(options.BatchPostingLimit, options.Period)
         {
             _state = LogstashHttpSinkState.Create(options);
+
+            // Set basic authentication header for provided user and password
+            if (!string.IsNullOrWhiteSpace(options.LogstashUser) && 
+                !string.IsNullOrWhiteSpace(options.LogstashPassword))
+            {
+                var headerKey = "Basic";
+                var headerValue = Convert.ToBase64String(
+                    Encoding.ASCII.GetBytes(
+                        $"{options.LogstashUser}:{options.LogstashPassword}"));
+
+                HttpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue(headerKey, headerValue);
+            }
         }
 
         /// <summary>

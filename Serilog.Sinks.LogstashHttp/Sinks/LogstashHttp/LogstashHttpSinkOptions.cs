@@ -73,5 +73,15 @@ namespace Serilog.Sinks.LogstashHttp
         ///     Logstash Uri
         /// </summary>
         public string LogstashUri { get; set; }
+
+        /// <summary>
+        ///     Logstash basic authentication User
+        /// </summary>
+        public string LogstashUser { get; set; }
+
+        /// <summary>
+        ///     Logstash basic authentication password
+        /// </summary>
+        public string LogstashPassword { get; set; }
     }
 }
