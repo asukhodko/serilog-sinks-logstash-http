@@ -46,12 +46,14 @@ namespace Serilog.Sinks.LogstashHttp
         /// </param>
         /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
         /// <param name="inlineFields">When set to true values will be written at the root of the json document</param>
+        /// <param name="indexName">When set index value will be written at the root of the json document</param>
         public LogstashHttpJsonFormatter(bool omitEnclosingObject = false,
             string closingDelimiter = null,
             bool renderMessage = false,
             IFormatProvider formatProvider = null,
-            bool inlineFields = false)
-            : base(omitEnclosingObject, closingDelimiter, renderMessage, formatProvider)
+            bool inlineFields = false,
+            string indexName = null)
+            : base(omitEnclosingObject, closingDelimiter, renderMessage, formatProvider, indexName)
         {
             _inlineFields = inlineFields;
         }
@@ -250,6 +252,14 @@ namespace Serilog.Sinks.LogstashHttp
         protected override void WriteTimestamp(DateTimeOffset timestamp, ref string delim, TextWriter output)
         {
             WriteJsonProperty("@timestamp", timestamp, ref delim, output);
+        }
+
+        /// <summary>
+        ///     Writes out the Index name
+        /// </summary>
+        protected override void WriteIndexName(string name, ref string delim, TextWriter output)
+        {
+            WriteJsonProperty("index", name, ref delim, output);
         }
     }
 }

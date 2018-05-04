@@ -27,13 +27,15 @@ namespace Serilog.Sinks.LogstashHttp
                             formatProvider: options.FormatProvider,
                             renderMessage: true,
                             closingDelimiter: string.Empty,
-                            inlineFields: options.InlineFields
+                            inlineFields: options.InlineFields,
+                            indexName: options.IndexName
                         );
             DurableFormatter = options.CustomDurableFormatter ?? new LogstashHttpJsonFormatter(
                                    formatProvider: options.FormatProvider,
                                    renderMessage: true,
                                    closingDelimiter: Environment.NewLine,
-                                   inlineFields: options.InlineFields
+                                   inlineFields: options.InlineFields,
+                                   indexName: options.IndexName
                                );
         }
 
@@ -44,7 +46,7 @@ namespace Serilog.Sinks.LogstashHttp
         public static LogstashHttpSinkState Create(LogstashHttpSinkOptions options)
         {
             if (options == null)
-                throw new ArgumentNullException("options");
+                throw new ArgumentNullException(nameof(options));
 
             return new LogstashHttpSinkState(options);
         }

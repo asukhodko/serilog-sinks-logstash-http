@@ -37,6 +37,7 @@ namespace Serilog.Sinks.LogstashHttp
         private readonly IDictionary<Type, Action<object, bool, TextWriter>> _literalWriters;
         private readonly bool _omitEnclosingObject;
         private readonly bool _renderMessage;
+        private readonly string _indexName;
 
         /// <summary>
         ///     Construct a <see cref="DefaultJsonFormatter" />.
@@ -56,16 +57,19 @@ namespace Serilog.Sinks.LogstashHttp
         ///     property named RenderedMessage.
         /// </param>
         /// <param name="formatProvider">Supplies culture-specific formatting information, or null.</param>
+        /// <param name="indexName">When set index value will be written at the root of the json document</param>
         protected DefaultJsonFormatter(
             bool omitEnclosingObject = false,
             string closingDelimiter = null,
             bool renderMessage = false,
-            IFormatProvider formatProvider = null)
+            IFormatProvider formatProvider = null,
+            string indexName = null)
         {
             _omitEnclosingObject = omitEnclosingObject;
             _closingDelimiter = closingDelimiter ?? Environment.NewLine;
             _renderMessage = renderMessage;
             _formatProvider = formatProvider;
+            _indexName = indexName;
 
             _literalWriters = new Dictionary<Type, Action<object, bool, TextWriter>>
             {
@@ -111,6 +115,7 @@ namespace Serilog.Sinks.LogstashHttp
             var delim = "";
             WriteTimestamp(logEvent.Timestamp, ref delim, output);
             WriteLevel(logEvent.Level, ref delim, output);
+            WriteIndexName(_indexName, ref delim, output);
             WriteMessageTemplate(logEvent.MessageTemplate.Text, ref delim, output);
             if (_renderMessage)
             {
@@ -245,6 +250,15 @@ namespace Serilog.Sinks.LogstashHttp
         protected virtual void WriteMessageTemplate(string template, ref string delim, TextWriter output)
         {
             WriteJsonProperty("MessageTemplate", template, ref delim, output);
+        }
+
+        /// <summary>
+        ///     Writes out the Index name
+        /// </summary>
+        protected virtual void WriteIndexName(string name, ref string delim, TextWriter output)
+        {
+            if (!string.IsNullOrEmpty(name))
+                WriteJsonProperty("index", name, ref delim, output);
         }
 
         /// <summary>
