@@ -44,18 +44,20 @@ namespace Serilog
         /// </summary>
         /// <param name="loggerSinkConfiguration">Options for the sink.</param>
         /// <param name="logstashUri">URI for Logstash.</param>
+        /// <param name="indexName">Index name for ElasticSearch </param>
         /// <returns>LoggerConfiguration object</returns>
         /// <exception cref="ArgumentNullException"><paramref name="logstashUri" /> is <see langword="null" />.</exception>
         public static LoggerConfiguration LogstashHttp(
             this LoggerSinkConfiguration loggerSinkConfiguration,
-            string logstashUri)
+            string logstashUri, string indexName = null)
         {
             if (string.IsNullOrEmpty(logstashUri))
                 throw new ArgumentNullException(nameof(logstashUri), "No Logstash uri specified.");
 
             var options = new LogstashHttpSinkOptions
             {
-                LogstashUri = logstashUri
+                LogstashUri = logstashUri,
+                IndexName = indexName
             };
 
             return LogstashHttp(loggerSinkConfiguration, options);
