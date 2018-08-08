@@ -30,6 +30,7 @@ namespace Serilog.Sinks.LogstashHttp
         {
             Period = TimeSpan.FromSeconds(2);
             BatchPostingLimit = 50;
+            ContentType = "application/json";
         }
 
         /// <summary>
@@ -73,5 +74,15 @@ namespace Serilog.Sinks.LogstashHttp
         ///     Logstash Uri
         /// </summary>
         public string LogstashUri { get; set; }
-    }
+
+        /// <summary>
+        ///     Enables sending the batch of events at once as json lines to logstash. Defaults to false.
+        /// </summary>
+        public bool JsonLinesBatch { get; set; }
+
+        /// <summary>
+        ///     Content-Type request header used when posting logs to logstash. Defaults to "application/json"
+        /// </summary>
+        public string ContentType { get; set; }
+  }
 }
