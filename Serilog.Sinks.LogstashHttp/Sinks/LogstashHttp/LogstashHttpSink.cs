@@ -69,28 +69,63 @@ namespace Serilog.Sinks.LogstashHttp
             // ReSharper disable PossibleMultipleEnumeration
             if (events == null || !events.Any()) return;
 
-            foreach (var e in events)
+            if (_state.Options.JsonLinesBatch)
             {
                 try
                 {
                     var sw = new StringWriter();
-                    _state.Formatter.Format(e, sw);
-                    var logData = sw.ToString();
-                    var stringContent = new StringContent(logData);
-                    stringContent.Headers.Remove("Content-Type");
-                    stringContent.Headers.Add("Content-Type", "application/json");
-
-                    // Using singleton of HttpClient so we need ensure of thread safety. Just use LockAsync.
-                    using (await Mutex.LockAsync().ConfigureAwait(false))
+                    foreach (var e in events)
                     {
-                        await HttpClient.PostAsync(_state.Options.LogstashUri, stringContent).ConfigureAwait(false);
+                        _state.Formatter.Format(e, sw);
+
+                        sw.WriteLine();
                     }
+                    var logData = sw.ToString();
+
+                    await PostLogDataAsync(logData);
                 }
                 catch (Exception ex)
                 {
                     // Debug me
                     throw ex;
                 }
+            }
+            else
+            {
+                foreach (var e in events)
+                {
+                    try
+                    {
+                        var sw = new StringWriter();
+                        _state.Formatter.Format(e, sw);
+                        var logData = sw.ToString();
+
+                        await PostLogDataAsync(logData);
+                    }
+                    catch (Exception ex)
+                    {
+                        // Debug me
+                        throw ex;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Posts the serialized events log data to logstash uri
+        /// </summary>
+        /// <param name="logData"></param>
+        /// <returns></returns>
+        private async Task PostLogDataAsync(string logData)
+        {
+            var stringContent = new StringContent(logData);
+            stringContent.Headers.Remove("Content-Type");
+            stringContent.Headers.Add("Content-Type", _state.Options.ContentType);
+
+            // Using singleton of HttpClient so we need ensure of thread safety. Just use LockAsync.
+            using (await Mutex.LockAsync().ConfigureAwait(false))
+            {
+                await HttpClient.PostAsync(_state.Options.LogstashUri, stringContent).ConfigureAwait(false);
             }
         }
     }
