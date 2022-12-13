@@ -1,11 +1,11 @@
 ﻿// Copyright 2017 Aleksandr Sukhodko
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -29,7 +29,7 @@ namespace Serilog.Sinks.LogstashHttp
     /// <summary>
     ///     Writes log events as documents to ElasticSearch.
     /// </summary>
-    public class LogstashHttpSink : PeriodicBatchingSink
+    public class LogstashHttpSink : IBatchedLogEventSink
     {
         private static readonly HttpClient HttpClient = new HttpClient();
         private static readonly AsyncLock Mutex = new AsyncLock();
@@ -43,10 +43,11 @@ namespace Serilog.Sinks.LogstashHttp
         /// Options configuring how the sink behaves, may NOT be null
         /// </param>
         public LogstashHttpSink(LogstashHttpSinkOptions options)
-            : base(options.BatchPostingLimit, options.Period)
         {
             _state = LogstashHttpSinkState.Create(options);
         }
+
+        public Task OnEmptyBatchAsync() => Task.CompletedTask;
 
         /// <summary>
         /// Emit a batch of log events, running to completion synchronously.
@@ -64,7 +65,7 @@ namespace Serilog.Sinks.LogstashHttp
         /// <returns>
         /// The <see cref="Task"/>.
         /// </returns>
-        protected override async Task EmitBatchAsync(IEnumerable<LogEvent> events)
+        public async Task EmitBatchAsync(IEnumerable<LogEvent> events)
         {
             // ReSharper disable PossibleMultipleEnumeration
             if (events == null || !events.Any()) return;

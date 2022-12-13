@@ -1,11 +1,11 @@
 // Copyright 2014 Serilog Contributors
-// 
+//
 // Licensed under the Apache License, Version 2.0 (the "License");
 // you may not use this file except in compliance with the License.
 // You may obtain a copy of the License at
-// 
+//
 //     http://www.apache.org/licenses/LICENSE-2.0
-// 
+//
 // Unless required by applicable law or agreed to in writing, software
 // distributed under the License is distributed on an "AS IS" BASIS,
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -21,27 +21,8 @@ namespace Serilog.Sinks.LogstashHttp
     /// <summary>
     ///     Provides ElasticsearchSink with configurable options
     /// </summary>
-    public class LogstashHttpSinkOptions
+    public class LogstashHttpSinkOptions : PeriodicBatching.PeriodicBatchingSinkOptions
     {
-        /// <summary>
-        ///     Configures the sink defaults
-        /// </summary>
-        public LogstashHttpSinkOptions()
-        {
-            Period = TimeSpan.FromSeconds(2);
-            BatchPostingLimit = 50;
-            ContentType = "application/json";
-        }
-
-        /// <summary>
-        ///     The maximum number of events to post in a single batch.
-        /// </summary>
-        public int BatchPostingLimit { get; set; }
-
-        /// <summary>
-        ///     The time to wait between checking for event batches. Defaults to 2 seconds.
-        /// </summary>
-        public TimeSpan Period { get; set; }
 
         /// <summary>
         ///     Supplies culture-specific formatting information, or null.
@@ -83,6 +64,7 @@ namespace Serilog.Sinks.LogstashHttp
         /// <summary>
         ///     Content-Type request header used when posting logs to logstash. Defaults to "application/json"
         /// </summary>
-        public string ContentType { get; set; }
-  }
+        public string ContentType { get; set; } = "application/json";
+
+    }
 }
