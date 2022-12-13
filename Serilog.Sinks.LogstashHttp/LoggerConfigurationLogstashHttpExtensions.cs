@@ -16,6 +16,7 @@ using System;
 using Serilog.Configuration;
 using Serilog.Events;
 using Serilog.Sinks.LogstashHttp;
+using Serilog.Sinks.PeriodicBatching;
 
 namespace Serilog
 {
@@ -36,7 +37,9 @@ namespace Serilog
         {
             var sink = new LogstashHttpSink(options);
 
-            return loggerSinkConfiguration.Sink(sink, options.MinimumLogEventLevel ?? LevelAlias.Minimum);
+            var periodicBatchingSink = new PeriodicBatchingSink(sink, options);
+
+            return loggerSinkConfiguration.Sink(periodicBatchingSink, options.MinimumLogEventLevel ?? LevelAlias.Minimum);
         }
 
         /// <summary>
